@@ -36,13 +36,29 @@ endef
 $(eval $(call Download,sha256sum))
 
 define Build/Prepare
+	# 1. 验证并准备源文件
 	mv $(DL_DIR)/$(PKG_SOURCE).sha256 .
 	cp $(DL_DIR)/$(PKG_SOURCE) .
 	shasum -a 256 -c $(PKG_SOURCE).sha256
-	rm $(PKG_SOURCE).sha256 $(PKG_SOURCE)
+	# 注意：这里移除了删除源文件的命令，因为后续解压需要它
 
-	tar -xvf $(DL_DIR)/$(PKG_SOURCE)
-	mv thunder-$(PKG_VERSION)-$(ARCH)-unknown-linux-musl/* $(PKG_BUILD_DIR)/
+	# 2. 解压并动态处理目录结构
+	tar -xvf $(DL_DIR)/$(PKG_SOURCE) -C $(PKG_BUILD_DIR)/
+	# 检查解压后的内容，并根据实际情况处理
+	# 如果tar包内直接就是thunder二进制文件，它现在应该已经在PKG_BUILD_DIR下了
+	# 下面的步骤确保文件在正确的位置
+	if [ -f "$(PKG_BUILD_DIR)/thunder" ]; then \
+		echo "Found thunder binary directly in build directory"; \
+	else \
+		echo "Checking for extracted directory structure..."; \
+		if [ -d "$(PKG_BUILD_DIR)/thunder-$(PKG_VERSION)-$(ARCH)-unknown-linux-musl" ]; then \
+			mv $(PKG_BUILD_DIR)/thunder-$(PKG_VERSION)-$(ARCH)-unknown-linux-musl/* $(PKG_BUILD_DIR)/; \
+			rmdir $(PKG_BUILD_DIR)/thunder-$(PKG_VERSION)-$(ARCH)-unknown-linux-musl; \
+		fi; \
+	fi
+
+	# 3. 确保thunder文件有可执行权限
+	chmod +x $(PKG_BUILD_DIR)/thunder
 endef
 
 define Build/Compile
