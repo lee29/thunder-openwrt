@@ -85,7 +85,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/share/thunder/target
 	$(INSTALL_DIR) $(1)/usr/share/thunder/target/host
 	$(INSTALL_DIR) $(1)/usr/share/thunder/target/etc
-	$(CP) $(PKG_BUILD_DIR)/bin/* $(1)/usr/share/thunder/target/
+#	$(CP) $(PKG_BUILD_DIR)/bin/* $(1)/usr/share/thunder/target/
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(CURDIR)/files/thunder.init $(1)/etc/init.d/thunder
